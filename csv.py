@@ -9,16 +9,37 @@ Lines = []
 mode = 'n'
 loadedFile = None
 
-commands = {
-    r"^exit$": lambda _ : exit(1),
-    r"^print ?(\d*) ?(\d*)$": lambda args : printLines(*args), 
-    r"^save ?(.*)$": lambda args : saveFile(*args),
-    r"^load ?(.*)$": lambda args : loadFile(*args),
-    r"^write$": lambda _ : writeMode(),
-    r"^new$": lambda _ : startNew(),
-    r"^mod ?(\d*) ?(\d*)$": lambda args :modLine(*args)
-}
+"""
 
+one command is an array of 3 or 4 items
+[ {name}, {regex}, {cb}, {help} ]
+
+name:
+    prety name of command
+regex:
+    regex used to match command to input
+cb:
+    a call back that takes 1 argument that is the groups returnd by the regex. the argument can be null
+help:
+    a help string used by the help command. this can be null
+"""
+commands = [
+    ["exit",r"^exit$",lambda _ : exit(1),"Exit the program. this dont save anything."],
+    ["print",r"^print ?(\d*) ?(\d*)$",lambda args : printLines(*args),"Print lines in the current table. \"print startLine? endLine?\""],
+    ["save",r"^save ?(.*)$",lambda args : saveFile(*args), "Save the current table to file. \"save filePath?\""],
+    ["load",r"^load ?(.*)$",lambda args : loadFile(*args), "Load a file. \"load filePath\""],
+    ["new",r"^new$",lambda _ : startNew(), "Start a new table" ],
+    ["write",r"^write$",lambda _ : writeMode(),"Enter write mode to add lines to the current table"],
+    ["mod",r"^mod ?(\d*) ?(\d*)$",lambda args :modLine(*args),"Modify a line. \"mod lineIndex fieldIndex?\""],
+    ["help",r"^help$", lambda _ : getHelp(), "Get all commands"]
+]
+
+def getHelp():
+    print("csv editor commands")
+    for com in commands:
+        line = "%s\t\t%s" % (com[0], com[3] if len(com) == 4 else "No help text")
+        print(line)
+    return # no help
 
 def _toFancyStr(toPrint,spliter=","):
     dataStr = spliter.join(toPrint)
@@ -132,11 +153,10 @@ def loadFile(path):
 
 def readLine(promt = "> "):
     data = input(promt)
-
-    for r in commands.keys():
-        m = re.match(r,data)
+    for com in commands:
+        m = re.match(com[1],data)
         if(m):
-            commands[r](m.groups())
+            com[2](m.groups())
             return
     return data if data != "" else None
 

@@ -2,5 +2,5 @@
     - [ ] Script file support
       - [ ] replace input func
     - [ ] add ability to index field by header index or heared name(prio index)
-    - [ ] add help command
-      - [ ] store commands better
+    - [x] add help command
+      - [x] store commands better
