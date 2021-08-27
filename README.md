@@ -4,3 +4,5 @@
     - [ ] add ability to index field by header index or heared name(prio index)
     - [x] add help command
       - [x] store commands better
+    - [ ] add copy and glue
+    - [ ] add select
