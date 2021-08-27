@@ -6,3 +6,4 @@
       - [x] store commands better
     - [ ] add copy and glue
     - [ ] add select
+    - [ ] make code not look like shit 
