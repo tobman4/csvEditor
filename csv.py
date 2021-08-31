@@ -45,9 +45,35 @@ def _toFancyStr(toPrint,spliter=","):
     dataStr = spliter.join(toPrint)
     return "%s\n%s\n%s" % ("#"*len(dataStr),dataStr,"#"*len(dataStr))
 
+def _getField(data):
+    if(re.match(r"^\d+$",data)):
+        data = int(data)
+        if(data < len(Headers) and data >= 0):
+            return data
+        else:
+            raise Exception("%s is not a valid. min 0 max %s" % (data,len(Headers)-1))
+    
+    try:
+        return Headers.index(data)
+    except:
+        raise Exception("Cant find any with the name %s" % data)
 
 def needFile(): # used to mark method that need Headers to work
     raise Exception("TODO")
+
+def findFilter(commandStr):
+    reg = r"where (\d+|\w+) (is|not) \"([^\"]+)\""
+    res = re.findall(reg,commandStr)
+    out = []
+
+    for hit in res:
+        out.append({
+            "tar": _getField(hit[0]),
+            "include": hit[1] == "is",
+            "target": hit[2]
+        })
+
+    return (out,re.sub(reg,"",commandStr))
 
 def startNew():
     global Headers
@@ -153,6 +179,11 @@ def loadFile(path):
 
 def readLine(promt = "> "):
     data = input(promt)
+
+    (filters,data) = findFilter(data)
+    
+    print("Command: %s using %s filters" % (data,len(filters)))
+
     for com in commands:
         m = re.match(com[1],data)
         if(m):

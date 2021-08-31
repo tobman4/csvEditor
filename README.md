@@ -6,4 +6,8 @@
       - [x] store commands better
     - [ ] add copy and glue
     - [ ] add select
+    - [ ] filter
+      - [x] filter reg
+      - [ ] any command that touch table can use filter
+      - [ ] add enviroment for pipe command
     - [ ] make code not look like shit 
