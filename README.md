@@ -6,4 +6,6 @@
       - [x] store commands better
     - [ ] add copy and glue
     - [ ] add select
-    - [ ] make code not look like shit 
+    - [ ] make code not look like shit
+    - [x] merg files
+    - [x] out 
