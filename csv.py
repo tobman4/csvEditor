@@ -1,7 +1,8 @@
 import re
 import argparse
+import sys
 
-from sys import flags # only used for DBG
+#from sys import flags # only used for DBG
 
 Headers = []
 Lines = []
@@ -151,6 +152,37 @@ def loadFile(path):
     print("Headers:\n%s" % ",".join(Headers))
     print("%s line" % len(Lines))
 
+def loadFileMerg(files):
+    global Headers
+    global Lines
+
+    for file in files:
+        try:
+            f = open(file)
+            lines = f.readlines()
+            if(len(Headers) == 0):
+                Headers = lines[0].replace("\n","").split(",")
+            elif(Headers != lines[0].replace("\n","").split(",")):
+                print("Can only merg files with matching header")
+                exit(1)
+            lineNr = 0
+            for mergLine in lines[1::]:
+                print("%s %s/%s" % (file,lineNr,len(lines)-1))
+                lineNr += 1 # line 0 is header so add line before testing it
+                toAdd = mergLine.replace("\n","").split(",")
+                if(len(toAdd) == len(Headers)):
+                    Lines.append(toAdd)
+                else:
+                    print("%s [%s] - invalid line" % (file,lineNr))
+        except:
+            print("Failed to merg %s")
+
+    print(loadedFile)
+    if(loadedFile):
+        saveFile()
+
+
+
 def readLine(promt = "> "):
     data = input(promt)
     for com in commands:
@@ -245,15 +277,41 @@ def writeMode():
         else:
             headIndex += 1
 
+def loadArgs(argsObj):
+    #Region load args
+    ## all args that touch loadedFile need to load befor --out because it has highest priority of out file
 
+    global loadedFile
 
-if __name__ == "__main__" and not flags.interactive:
-    parser = argparse.ArgumentParser(description='small cli editor for CSV files :)')
-    parser.add_argument('--file',"-f", metavar="path", type=str, help="File to load at start")
-    args = parser.parse_args()
+    if(args.noArgs):
+        return
 
     if(args.file):
         loadFile(args.file)
+
+    print(args.out)
+    if(args.out):
+        loadedFile = args.out
+
+    if(args.merg and not args.file):
+        loadFileMerg(args.merg)
+    elif(args.merg):
+        print("Cant merg and load a file")
+        sys.exit()
+
+if __name__ == "__main__": # and not flags.interactive:
+    parser = argparse.ArgumentParser(description='small cli editor for CSV files :)')
+    parser.add_argument('--file',"-f", metavar="path", type=str, help="File to load at start")
+    parser.add_argument("--out","-o",metavar="out.csv", type=str)
+    parser.add_argument("--merg","-m",metavar="file0.csv file1.csv", type=str,nargs="*")
+    parser.add_argument("--noCli", action="store_true", help="stop the program from entering the cli mode. (used for dbg)")
+    parser.add_argument("--noArgs", action="store_true", help="dont try to load args. args ment for dbg may still load (only ment for dbg)")
+    args = parser.parse_args()
+    
+    loadArgs(args)
+    
+    if(args.noCli):
+        sys.exit()
 
     while True:
         res = readLine()
